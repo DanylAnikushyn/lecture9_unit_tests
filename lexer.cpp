@@ -1,9 +1,12 @@
 #include "lexer.h"
 
 #include <memory>
+#include <stdexcept>
+#include <sstream>
 
 Lexer::Lexer(const std::string& str) : m_buffer(str), m_size(str.length()) 
 {
+    if (m_buffer.length() == 0) throw std::runtime_error("Expression with zero length");
     m_current_index = 0;
     m_current_symbol = m_buffer[m_current_index];
 }
@@ -62,8 +65,9 @@ std::unique_ptr<Token> Lexer::next_token()
             case '+': return next_symb_with_current(TokenType::ADD);
             case '\0': break;
             default: {
-                std::cerr << "(Lexer :: Unexpected character " << m_current_symbol << std::endl; 
-                exit(1); 
+                std::stringstream msg("Lexer :: Unexpected character ");
+                msg << m_current_symbol << "\n";
+                throw std::runtime_error(msg.str());  
                 break;
             }
         }
