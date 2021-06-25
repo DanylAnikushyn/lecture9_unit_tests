@@ -2,7 +2,7 @@
 #include <memory>
 #include "compiler.h"
 
-TEST(myfunctions, compile)
+TEST(myfunctions, compiler)
 {
     std::unique_ptr<Compiler> compiler;
     GTEST_ASSERT_EQ(compiler->compile("2 + 2"), 4);
