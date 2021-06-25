@@ -63,6 +63,11 @@ std::unique_ptr<Token> Lexer::next_token()
         }
         switch (m_current_symbol) {
             case '+': return next_symb_with_current(TokenType::ADD);
+            case '-': return next_symb_with_current(TokenType::SUB); 
+            case '*': return next_symb_with_current(TokenType::MUL);
+            case '/': return next_symb_with_current(TokenType::DIV);
+            case '(': return next_symb_with_current(TokenType::LPA);
+            case ')': return next_symb_with_current(TokenType::RPA);
             case '\0': break;
             default: {
                 std::stringstream msg("Lexer :: Unexpected character ");

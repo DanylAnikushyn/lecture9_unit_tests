@@ -6,6 +6,11 @@
 enum class TokenType {
     INT = 1,
     ADD,
+    SUB,
+    MUL,
+    DIV,
+    LPA,
+    RPA,
     END
 };
 
