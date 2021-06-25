@@ -113,6 +113,7 @@ TEST(parser, parser)
     lexer = std::make_unique<Lexer>(std::string{"(1 - 2) * 8 - 10"});
     parser = std::make_unique<Parser>(std::move(lexer));
     root = parser->parse();
+    
     GTEST_ASSERT_EQ(root->type, ASTType::COMPOUND);
     GTEST_ASSERT_EQ(root->left, nullptr);
     GTEST_ASSERT_EQ(root->right, nullptr);
