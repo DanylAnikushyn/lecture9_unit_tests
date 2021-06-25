@@ -3,7 +3,14 @@
 
 AST::AST(ASTType type) : type(type), op(TokenType::NOT)
 {
-    value = std::unique_ptr<AST>();
-    left = std::unique_ptr<AST>();
-    right = std::unique_ptr<AST>();
+    value = nullptr;
+    left = nullptr;
+    right = nullptr;
+}
+
+AST::~AST()
+{
+    delete value;
+    delete left;
+    delete right;
 }

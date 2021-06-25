@@ -9,7 +9,7 @@
 class Compiler {
 public:
     int compile(const std::string& expression);
-    int calculate(std::unique_ptr<AST> root);
+    int calculate(AST* root);
 };
 
 #endif

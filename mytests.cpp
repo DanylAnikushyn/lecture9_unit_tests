@@ -152,7 +152,19 @@ TEST(parser, parser)
 TEST(compiler, compiler)
 {
     std::unique_ptr<Compiler> compiler;
-    GTEST_ASSERT_EQ(compiler->compile(std::string{"2 + 2"}), 4);
+    EXPECT_EQ(compiler->compile(std::string{"2"}), 2);
+    EXPECT_EQ(compiler->compile(std::string{"2 + 2"}), 4);
+    EXPECT_EQ(compiler->compile(std::string{"(1 - 2) * 8 - 10"}), -18);
+    EXPECT_EQ(compiler->compile(std::string{"10 / (5 - 3) - 2 + 10 / 2"}), 8);
+    EXPECT_EQ(compiler->compile(std::string{"(40 / 2 / 2 - 1) * 10"}), 90);
+    EXPECT_EQ(compiler->compile(std::string{"(40 / 2 / 2 / 2 - 1) * 10"}), 40); // !!!!!!
+    EXPECT_EQ(compiler->compile(std::string{"40 * 2 * 2 - 1"}), 159);
+    EXPECT_EQ(compiler->compile(std::string{"40 * 2 * 2 * 2 - 1"}), 319);
+    EXPECT_EQ(compiler->compile(std::string{"(10 - (10 - 6 / 2) / 1) + 10 / 2 * 2"}), 13);
+    EXPECT_EQ(compiler->compile(std::string{"10 / 2 * 3 / 5 "}), 3); // !!!!!!!
+
+    EXPECT_THROW(compiler->compile(std::string{"(10 - 2) / /"}), std::runtime_error); // unexpected token
+    EXPECT_THROW(compiler->compile(std::string{"(10 - 2) / ()"}), std::runtime_error); // empty parentheses
 }
 
 int main(int argc, char* argv[])

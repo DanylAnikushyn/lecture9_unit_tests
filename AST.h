@@ -16,13 +16,14 @@ class AST
 {
 public:
     ASTType type;
-    std::unique_ptr<AST> value;
-    std::unique_ptr<AST> left;
-    std::unique_ptr<AST> right;
+    AST* value;
+    AST* left;
+    AST* right;
     TokenType op;
     int int_value;
 
     AST(ASTType type);
+    ~AST();
 };
 
 #endif
