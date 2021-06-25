@@ -3,6 +3,8 @@
 #include "compiler.h"
 #include "token.h"
 #include "lexer.h"
+#include "parser.h"
+#include "AST.h"
 
 TEST(lexer, lexer) 
 {
@@ -67,10 +69,89 @@ TEST(lexer, lexer)
     ASSERT_THROW(lexer.next_token(), std::runtime_error);
 }
 
+TEST(parser, parser)
+{
+    // try just single number
+    auto lexer = std::make_unique<Lexer>(std::string{"2"});
+    auto parser = std::make_unique<Parser>(std::move(lexer));
+    auto root = parser->parse();
+
+    GTEST_ASSERT_EQ(root->type, ASTType::COMPOUND);
+    GTEST_ASSERT_EQ(root->left, nullptr);
+    GTEST_ASSERT_EQ(root->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->int_value, 2);
+    GTEST_ASSERT_EQ(root->value->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->right, nullptr);
+
+    // finding root of arithmetic expression
+    lexer = std::make_unique<Lexer>(std::string{"2 + 2"});
+    parser = std::make_unique<Parser>(std::move(lexer));
+    root = parser->parse();
+
+    GTEST_ASSERT_EQ(root->type, ASTType::COMPOUND);
+    GTEST_ASSERT_EQ(root->left, nullptr);
+    GTEST_ASSERT_EQ(root->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->type, ASTType::BINOP);
+    GTEST_ASSERT_EQ(root->value->op, TokenType::ADD);
+    GTEST_ASSERT_EQ(root->value->left->int_value, 2);
+    GTEST_ASSERT_EQ(root->value->left->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->left->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->right->int_value, 2);
+    GTEST_ASSERT_EQ(root->value->right->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->right->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left, nullptr);
+
+    // trickier arithmetic expression
+    lexer = std::make_unique<Lexer>(std::string{"(1 - 2) * 8 - 10"});
+    parser = std::make_unique<Parser>(std::move(lexer));
+    root = parser->parse();
+    GTEST_ASSERT_EQ(root->type, ASTType::COMPOUND);
+    GTEST_ASSERT_EQ(root->left, nullptr);
+    GTEST_ASSERT_EQ(root->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->type, ASTType::BINOP);
+    GTEST_ASSERT_EQ(root->value->op, TokenType::SUB);
+    GTEST_ASSERT_EQ(root->value->left->type, ASTType::BINOP);
+    GTEST_ASSERT_EQ(root->value->left->op, TokenType::MUL);
+    GTEST_ASSERT_EQ(root->value->left->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->type, ASTType::COMPOUND);
+    GTEST_ASSERT_EQ(root->value->left->left->op, TokenType::NOT);
+    GTEST_ASSERT_EQ(root->value->left->left->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->type, ASTType::BINOP);
+    GTEST_ASSERT_EQ(root->value->left->left->value->op, TokenType::SUB);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->int_value, 1);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->left->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->int_value, 2);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->left->left->value->right->right, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->type, ASTType::INT);
+    GTEST_ASSERT_EQ(root->value->right->op, TokenType::INT);
+    GTEST_ASSERT_EQ(root->value->right->int_value, 10);
+    GTEST_ASSERT_EQ(root->value->right->left, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->value, nullptr);
+    GTEST_ASSERT_EQ(root->value->right->right, nullptr);
+}
+
 TEST(compiler, compiler)
 {
     std::unique_ptr<Compiler> compiler;
-    GTEST_ASSERT_EQ(compiler->compile("2 + 2"), 4);
+    GTEST_ASSERT_EQ(compiler->compile(std::string{"2 + 2"}), 4);
 }
 
 int main(int argc, char* argv[])

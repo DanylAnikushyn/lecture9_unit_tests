@@ -8,6 +8,6 @@ include_directories(googletest/include) # this is so we can #include <gtest/gtes
 
 add_compile_options(-Wall -pedantic)
 
-add_executable(mytests mytests.cpp compiler.cpp lexer.cpp) # add this executable
+add_executable(mytests mytests.cpp compiler.cpp lexer.cpp parser.cpp AST.cpp) # add this executable
 
 target_link_libraries(mytests PRIVATE gtest) # link google test to this executable

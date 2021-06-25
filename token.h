@@ -4,7 +4,8 @@
 #include <string>
 
 enum class TokenType {
-    INT = 1,
+    NOT = 0,
+    INT,
     ADD,
     SUB,
     MUL,
